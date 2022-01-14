@@ -1,18 +1,22 @@
 const { assert } = require("chai");
+const { parseUnits } = require("ethers/lib/utils");
 const { ethers } = require("hardhat");
 
 describe("CocktailNFTMarket", function () {
-  it("Should mint two ingredients", async function () {
+  let CocktailNFTMarket, cocktailNFTMarket;
+  beforeEach(async () => {
     signer0 = await hre.ethers.getSigner(1);
     signer1 = await hre.ethers.getSigner(2);
-    const CocktailNFTMarket = await ethers.getContractFactory(
-      "CocktailNFTMarket"
-    );
-    const cocktailNFTMarket = await CocktailNFTMarket.deploy();
+    CocktailNFTMarket = await ethers.getContractFactory("CocktailNFTMarket");
+    cocktailNFTMarket = await CocktailNFTMarket.connect(signer0).deploy();
     await cocktailNFTMarket.deployed();
-
+  });
+  it("Should mint two ingredients and buy both with signer1", async function () {
     await cocktailNFTMarket.connect(signer0).mintIngredient("Lime.com");
     await cocktailNFTMarket.connect(signer0).mintIngredient("Tequila.com");
+    await cocktailNFTMarket
+      .connect(signer1)
+      .createMarketSale(1, { value: ethers.utils.parseUnits(".003", "ether") });
     items = await cocktailNFTMarket.getAllMarketItems();
     items = await Promise.all(
       items.map(async (i) => {
@@ -30,9 +34,9 @@ describe("CocktailNFTMarket", function () {
 
     //assert(items.length == 2);
 
-    await cocktailNFTMarket
-      .connect(signer0)
-      .createCocktailItem([1, 2], "lazyMargarita");
+    // await cocktailNFTMarket
+    //   .connect(signer0)
+    //   .createCocktailItem([1, 2], "lazyMargarita");
     // items = await cocktailNFTMarket.getAllMarketItems();
     // items = await Promise.all(
     //   items.map(async (i) => {

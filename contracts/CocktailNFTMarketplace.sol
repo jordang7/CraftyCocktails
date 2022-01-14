@@ -4,22 +4,25 @@ pragma solidity ^0.8.1;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
+import "./CocktailNFT.sol";
 import "hardhat/console.sol";
 
 contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
-
+    Counters.Counter private _itemsSold;
     address payable owner;
 
     struct MarketItem {
         uint256 tokenId;
-        address owner;
+        address payable seller;
+        address payable owner;
+        uint256 price;
         bool isIngredient; // if false its a cocktail
         bool isActive; // if false its burned and cannot be used or seen
+        bool isSold;
     }
-
+    event MarketItemSold(uint256 indexed itemId, address owner);
     event MarketItemCreated(uint256 tokenId, address owner);
     mapping(uint256 => MarketItem) private idToMarketItem;
 
@@ -27,17 +30,23 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
         owner = payable(msg.sender);
     }
 
+    // fallback function
+    receive() external payable {}
+
     function mintIngredient(string memory _tokenURI) external {
         // require(owner == msg.sender);
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
-        _mint(msg.sender, newItemId);
+        _mint(address(this), newItemId);
         _setTokenURI(newItemId, _tokenURI);
         idToMarketItem[newItemId] = MarketItem(
             newItemId,
-            payable(msg.sender),
+            payable(address(this)),
+            payable(address(0)),
+            .003 ether,
             true,
-            true
+            true,
+            false
         );
     }
 
@@ -53,7 +62,6 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
                 allow = false;
             }
         }
-        console.log(allow);
         require(allow, "ingredients cannot be used twice");
 
         for (uint256 i = 0; i < ids.length; i++) {
@@ -68,9 +76,12 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
 
         idToMarketItem[newItemId] = MarketItem(
             newItemId,
+            payable(address(this)),
             payable(msg.sender),
+            0,
             false,
-            true
+            true,
+            false
         );
 
         emit MarketItemCreated(newItemId, payable(msg.sender));
@@ -95,38 +106,21 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
         return marketItems;
     }
 
-    // function getMarketItemsByUser()
-    //     external
-    //     view
-    //     returns (MarketItem[] memory, int256)
-    // {
-    //     uint256 totalItemCount = _tokenIds.current();
-    //     uint256 itemCount = 0;
-    //     uint256 curr = 0;
-    //     int256 karma = 0;
-
-    //     for (uint256 i = 0; i < totalItemCount; i++) {
-    //         if (
-    //             idToMarketItem[i + 1].chef == msg.sender &&
-    //             !idToMarketItem[i + 1].isReward
-    //         ) {
-    //             itemCount++;
-    //         }
-    //     }
-
-    //     MarketItem[] memory marketItems = new MarketItem[](itemCount);
-
-    //     for (uint256 i = 0; i < totalItemCount; i++) {
-    //         if (
-    //             idToMarketItem[i + 1].chef == msg.sender &&
-    //             !idToMarketItem[i + 1].isReward
-    //         ) {
-    //             MarketItem storage currentItem = idToMarketItem[i + 1];
-    //             marketItems[curr] = currentItem;
-    //             karma += (currentItem.upCount - currentItem.downCount);
-    //             curr++;
-    //         }
-    //     }
-    //     return (marketItems, karma);
-    // }
+    function createMarketSale(uint256 itemId) public payable nonReentrant {
+        uint256 price = idToMarketItem[itemId].price;
+        uint256 tokenId = idToMarketItem[itemId].tokenId;
+        bool sold = idToMarketItem[itemId].isSold;
+        require(
+            msg.value == price,
+            "Please submit the asking price in order to complete the purchase"
+        );
+        require(sold != true, "This Sale has alredy finished");
+        emit MarketItemSold(itemId, msg.sender);
+        console.log(idToMarketItem[itemId].seller);
+        idToMarketItem[itemId].seller.transfer(msg.value);
+        IERC721(address(this)).transferFrom(address(this), msg.sender, tokenId);
+        idToMarketItem[itemId].owner = payable(msg.sender);
+        _itemsSold.increment();
+        idToMarketItem[itemId].isSold = true;
+    }
 }
