@@ -22,7 +22,7 @@ const styles = {
 
 function NFTBalance() {
   const { NFTBalance, fetchSuccess } = useNFTBalance("0x6F234Fa20558743970ccEBD6AF259fCB49eeA73c");
-  console.log(NFTBalance,fetchSuccess)
+  const CocktailList = NFTBalance.filter(nft=>nft.name === "Cocktails")
   const { chainId, marketAddress, contractABI } = useMoralisDapp();
   const { Moralis } = useMoralis();
   const [visible, setVisibility] = useState(false);
@@ -164,7 +164,7 @@ function NFTBalance() {
             <div style={{ marginBottom: "10px" }}></div>
           </>
         )}
-        {!fetchSuccess && (
+        {/* {!fetchSuccess && (
           <>
             <Alert
               message="Unable to fetch all NFT metadata... We are searching for a solution, please try again later!"
@@ -172,9 +172,9 @@ function NFTBalance() {
             />
             <div style={{ marginBottom: "10px" }}></div>
           </>
-        )}
-        {NFTBalance &&
-          NFTBalance.map((nft, index) => (
+        )} */}
+        {CocktailList &&
+          CocktailList.map((nft, index) => (
             console.log(nft),
             <Card
               hoverable
