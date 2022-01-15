@@ -23,7 +23,14 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
         bool isSold;
     }
     event MarketItemSold(uint256 indexed itemId, address owner);
-    event MarketItemCreated(uint256 tokenId, address owner);
+    event MarketItemCreated(
+        uint256 tokenId,
+        address seller,
+        address owner,
+        uint256 price,
+        bool isIngredient,
+        bool isSold
+    );
     mapping(uint256 => MarketItem) private idToMarketItem;
 
     constructor() ERC721("Cocktails", "CT") {
@@ -45,6 +52,15 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
             payable(address(0)),
             .003 ether,
             true,
+            true,
+            false
+        );
+
+        emit MarketItemCreated(
+            newItemId,
+            payable(address(this)),
+            payable(address(0)),
+            .003 ether,
             true,
             false
         );
@@ -84,7 +100,14 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
             false
         );
 
-        emit MarketItemCreated(newItemId, payable(msg.sender));
+        emit MarketItemCreated(
+            newItemId,
+            payable(address(this)),
+            payable(msg.sender),
+            0,
+            false,
+            false
+        );
     }
 
     function getAllMarketItems() external view returns (MarketItem[] memory) {

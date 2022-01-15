@@ -31,8 +31,8 @@ describe("CocktailNFTMarket", function () {
         return item;
       })
     );
-
-    //assert(items.length == 2);
+    console.log(balanceOf(ether.balanceOf(signer1.address)));
+    assert();
 
     // await cocktailNFTMarket
     //   .connect(signer0)
