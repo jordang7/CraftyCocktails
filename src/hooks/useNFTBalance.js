@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useMoralisWeb3Api, useMoralisWeb3ApiCall } from "react-moralis";
 import { useIPFS } from "./useIPFS";
 
-export const useNFTBalance = (options) => {
+export const useNFTBalance = (addr) => {
   const { account } = useMoralisWeb3Api();
   const { chainId } = useMoralisDapp();
   const { resolveLink } = useIPFS();
@@ -15,7 +15,7 @@ export const useNFTBalance = (options) => {
     isLoading,
   } = useMoralisWeb3ApiCall(account.getNFTs, {
     chain: chainId,
-    address: "0xd462ED26046E5f49889CBF101ff580082b7982fF",
+    address: addr,
     limit: 10,
   });
   const [fetchSuccess, setFetchSuccess] = useState(true);
