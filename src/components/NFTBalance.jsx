@@ -175,6 +175,7 @@ function NFTBalance() {
         )}
         {NFTBalance &&
           NFTBalance.map((nft, index) => (
+            console.log(nft),
             <Card
               hoverable
               actions={[

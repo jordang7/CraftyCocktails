@@ -28,7 +28,8 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
         address seller,
         address owner,
         uint256 price,
-        bool isIngredient
+        bool isIngredient,
+        bool isSold
     );
     mapping(uint256 => MarketItem) private idToMarketItem;
 
@@ -60,7 +61,8 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
             payable(address(this)),
             payable(address(0)),
             .003 ether,
-            true
+            true,
+            false
         );
     }
 
@@ -103,6 +105,7 @@ contract CocktailNFTMarket is ERC721URIStorage, ReentrancyGuard {
             payable(address(this)),
             payable(msg.sender),
             0,
+            false,
             false
         );
     }

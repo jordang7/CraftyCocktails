@@ -15,7 +15,7 @@ export const useNFTBalance = (options) => {
     isLoading,
   } = useMoralisWeb3ApiCall(account.getNFTs, {
     chain: chainId,
-    address: "0x8Dd03D724F3A6EbaeD96876DB2CC61850e2E3147",
+    address: "0xd462ED26046E5f49889CBF101ff580082b7982fF",
     limit: 10,
   });
   const [fetchSuccess, setFetchSuccess] = useState(true);
@@ -34,11 +34,11 @@ export const useNFTBalance = (options) => {
             await fetch(NFT.token_uri)
               .then((response) => response.json())
               .then((data) => {
-                console.log(data);
+                //console.log(data);
                 NFT.image = resolveLink(data.image);
               });
           } catch (error) {
-            console.log(NFT, error);
+            //console.log(NFT, error);
             setFetchSuccess(false);
           }
         }
