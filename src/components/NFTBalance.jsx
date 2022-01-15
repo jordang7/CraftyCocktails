@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMoralis } from "react-moralis";
-import { Card, Image, Tooltip, Modal, Input, Alert, Spin, Button } from "antd";
+import { Card, Image, Tooltip, Modal, Input, Alert, Spin, Button, Col,Row,Form } from "antd";
 import { useNFTBalance } from "hooks/useNFTBalance";
 import { FileSearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
@@ -21,17 +21,43 @@ const styles = {
 };
 
 function NFTBalance() {
-  const { NFTBalance, fetchSuccess } = useNFTBalance("0x6F234Fa20558743970ccEBD6AF259fCB49eeA73c");
-  const CocktailList = NFTBalance.filter(nft=>nft.name === "Cocktails")
+  const { authenticate, isAuthenticated, user } = useMoralis();
+  const address = user.get("ethAddress");
+  const { NFTBalance, fetchSuccess } = useNFTBalance(address);
+  const CocktailList = NFTBalance.filter(nft=>nft.name ==="Ingredients" )
+  console.log(CocktailList)
   const { chainId, marketAddress, contractABI } = useMoralisDapp();
   const { Moralis } = useMoralis();
   const [visible, setVisibility] = useState(false);
+  const [visible1, setVisibility1] = useState(false);
   const [nftToSend, setNftToSend] = useState(null);
   const [price, setPrice] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [recipeName, setRecipeName] = useState();
+  const [IngredientsArray, setIngredientsArray] = useState([
+    { name: ""},
+  ]);
+  let handleChange = (i, e) => {
+    let newIngredientsArray = [...IngredientsArray];
+    newIngredientsArray[i][e.target.name] = Number(e.target.value);
+    setIngredientsArray(newIngredientsArray);
+  };
+
+  let addNewIngredient = () => {
+    setIngredientsArray([...IngredientsArray, { name: ""}]);
+  };
+
+  let removeIngredient = (i) => {
+    let newIngredientsArray = [...IngredientsArray];
+    newIngredientsArray.splice(i, 1);
+    setIngredientsArray(newIngredientsArray);
+  };
+
+
   const contractProcessor = useWeb3ExecuteFunction();
   const contractABIJson = JSON.parse(contractABI);
   const listItemFunction = "createMarketItem";
+  const createCocktailItem = "createCocktailItem";
   const ItemImage = Moralis.Object.extend("ItemImages");
 
   async function list(nft, listPrice) {
@@ -64,6 +90,45 @@ function NFTBalance() {
     });
   }
 
+  async function mintCocktail() {
+    setLoading(true);
+    console.log(IngredientsArray)
+    let result = IngredientsArray.map(a => a.name);
+    console.log(result)
+    // Save file input to IPFS
+    // const data = fileInput.files[0]
+    // const file = new Moralis.File(name, data)
+    // await file.saveIPFS();
+
+    // console.log(file.ipfs(), file.hash())
+
+// Save file reference to Moralis
+    const ops = {
+      contractAddress: marketAddress,
+      functionName: createCocktailItem,
+      abi: contractABIJson,
+      params: {
+        ids: result,
+        _tokenURI: "https://gateway.ipfs.io/ipfs/QmXcWFWtmzvLnp4o7j29w6VMuirt7cNWx3FMPUzhWBy31U" //COCKTAIL picture goes here ( HARDCODED IN)
+      },
+    };
+
+    await contractProcessor.fetch({
+      params: ops,
+      onSuccess: () => {
+        console.log("success");
+        setLoading(false);
+        setVisibility1(false);
+        // updateSoldMarketItem();
+        // succPurchase();
+      },
+      onError: (error) => {
+        setLoading(false);
+        console.log("ERROR",error)
+        // failPurchase();
+      },
+    });
+  }
 
   async function approveAll(nft) {
     setLoading(true);
@@ -154,6 +219,7 @@ function NFTBalance() {
 
   return (
     <>
+    <Button onClick ={ () => setVisibility1(true)}> Craft a Cocktail!</Button>
       <div style={styles.NFTs}>
         {contractABIJson.noContractDeployed && (
           <>
@@ -175,7 +241,6 @@ function NFTBalance() {
         )} */}
         {CocktailList &&
           CocktailList.map((nft, index) => (
-            console.log(nft),
             <Card
               hoverable
               actions={[
@@ -243,6 +308,76 @@ function NFTBalance() {
             placeholder="Listing Price in MATIC"
             onChange={(e) => setPrice(e.target.value)}
           />
+        </Spin>
+      </Modal>
+
+      <Modal
+        title={`Craft Your Cocktail here!`}
+        visible={visible1}
+        onCancel={() => setVisibility1(false)}
+        onOk={() => list(nftToSend, price)}
+        okText="List"
+        footer={[
+          <Button onClick={() => setVisibility1(false)}>
+            Cancel
+          </Button>
+        ]}
+      >
+        <Spin spinning={loading}>
+          <img
+            src={`${nftToSend?.image}`}
+            style={{
+              width: "250px",
+              margin: "auto",
+              borderRadius: "10px",
+              marginBottom: "15px",
+            }}
+          />
+          <Form onFinish={mintCocktail}>
+          <Input
+            autoFocus
+            placeholder="Cocktail Name"
+            onChange={(e) => setPrice(e.target.value)}
+          />
+          {IngredientsArray.map((element, index) => (
+            <div>
+
+              <Input
+                autoFocus
+                placeholder="Ingredients to Use"
+                type="text"
+                name="name"
+                value={element.name || ""}
+                onChange={(e) => handleChange(index, e)}
+                required
+              />
+              {index ? (
+                <Col md="auto">
+                  <Button
+                    type="button"
+                    variant="danger"
+                    onClick={() => removeIngredient(index)}
+                  >
+                    Remove
+                  </Button>
+                </Col>
+              ) : null}
+            </div>
+
+          ))};
+          <div>
+          <Button
+            className="mx-1 my-2"
+            variant="primary"
+            onClick={() => addNewIngredient()}
+          >
+            Add
+          </Button>
+          <Button  htmlType="submit" type="submit">
+            Submit
+          </Button>
+        </div>
+        </Form>
         </Spin>
       </Modal>
     </>

@@ -1,9 +1,9 @@
 const ingredients = require("./ingredients.json");
-const existingContractAddr = "0xd462ED26046E5f49889CBF101ff580082b7982fF";
+const existingContractAddr = "0x2bAc61884d1B3aff1BB9595cE83F1DD014676E35";
 
 async function main() {
   const nft = await hre.ethers.getContractAt(
-    "CocktailNFTMarket",
+    "IngredientNFTMarket",
     existingContractAddr
   );
 

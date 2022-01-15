@@ -16,7 +16,6 @@ export const useNFTBalance = (addr) => {
   } = useMoralisWeb3ApiCall(account.getNFTs, {
     chain: chainId,
     address: addr,
-    limit: 10,
   });
   const [fetchSuccess, setFetchSuccess] = useState(true);
 

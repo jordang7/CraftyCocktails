@@ -181,6 +181,25 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "newBase",
+        "type": "address"
+      }
+    ],
+    "name": "changeCocktailBase",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256[]",
         "name": "ids",
         "type": "uint256[]"
@@ -251,7 +270,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct CocktailNFTMarket.MarketItem[]",
+        "internalType": "struct IngredientNFTMarket.MarketItem[]",
         "name": "",
         "type": "tuple[]"
       }

@@ -1,12 +1,19 @@
 async function main() {
-  const CocktailNFTMarket = await hre.ethers.getContractFactory(
-    "CocktailNFTMarket"
-  );
-  const nft = await CocktailNFTMarket.deploy();
+  IngredientNFTMarket = await ethers.getContractFactory("IngredientNFTMarket");
+  ingredientNFTMarket = await IngredientNFTMarket.deploy();
 
-  await nft.deployed();
+  await ingredientNFTMarket.deployed();
 
-  console.log("CocktailNFTMarket deployed to:", nft.address);
+  CocktailNFT = await ethers.getContractFactory("CocktailNFT");
+  cocktailNFT = await CocktailNFT.deploy(ingredientNFTMarket.address);
+
+  await cocktailNFT.deployed();
+
+  await ingredientNFTMarket.changeCocktailBase(cocktailNFT.address);
+
+  console.log("ingredientNFTMarket deployed to:", ingredientNFTMarket.address);
+
+  console.log("CocktailNFTMarket deployed to:", cocktailNFT.address);
 }
 
 main()

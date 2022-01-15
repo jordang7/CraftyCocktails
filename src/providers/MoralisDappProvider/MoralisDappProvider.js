@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import MoralisDappContext from "./context";
 import artifact from "../../constants/abi.json";
-const ADDRESS = "0xd462ed26046e5f49889cbf101ff580082b7982ff";
+const ADDRESS = process.env.REACT_APP_MARKET_ADDRESS;
 const ABI = artifact.abi;
 
 function MoralisDappProvider({ children }) {
