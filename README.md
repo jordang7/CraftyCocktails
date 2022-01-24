@@ -1,15 +1,18 @@
-# Basic Sample Hardhat Project
+# An NFT marketplace allowing users to buy one-use ingredient NFTs and “combine” them by crafting their own cocktail NFT
+- Ethglobal NFTHack submission
+- Built off of Moralis ethereum boilerplate
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+# Setup
+Install dependencies in the top-level directory with npm install.
 
-Try running some of the following tasks:
+Create .env file with following variables
+ - REACT_APP_MORALIS_APPLICATION_ID = 
+ - REACT_APP_MORALIS_SERVER_URL =
+ - REACT_APP_MARKET_ADDRESS = 
+ - REACT_APP_COCKTAIL_ADDRESS =
+ - PRIVATE_KEY=
+ - RINKEBY_URL=
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+Compile and deploy contracts using the deploy.js script `npx hardhat run scripts/deploy.js`
+
+Mint ingredient NFTs for users to purchase by calling mintIngredients.js `npx hardhat run scripts/mintIngredients.js`
